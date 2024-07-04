@@ -5,32 +5,37 @@ import Keycloak from "keycloak-js";
 export default function App() {
   // function initKeycloak() {
   var keycloak = new Keycloak({
-    url: "http://192.168.100.102/auth/",
-    realm: "Jobseeker",
-    clientId: "job-seekers-webapp-local"
+    url: "http://localhost:8080",
+    realm: "myrealm",
+    clientId: "myclient"
   });
 
   keycloak
-    .init()
-    .then(function (authenticated) {
-      alert(authenticated ? "authenticated" : "not authenticated");
+    .init({
+      checkLoginIframe : false
     })
-    .catch(function () {
+    .then(function (authenticated) {
+      alert(authenticated ? keycloak.token : "not authenticated");
+    })
+    .catch(function (ex) {
+      console.log(ex);
       alert("failed to initialize");
     });
 
   const loginUrl = keycloak.createLoginUrl({
     scope: "openid",
-    redirectUri: "http://192.168.100.205:30300/?callback=1",
-    locale: "en"
+    redirectUri: "http://localhost:3000/",
+    locale: "en",
+    checkLoginIframe: false
   });
 
   const registerUrl = keycloak.createRegisterUrl({
     scope: "openid email",
-    redirectUri: "http://localhost:3020/code",
+    redirectUri: "http://localhost:3000/code",
     locale: "en",
     action: "register",
-    prompt: "login"
+    prompt: "login",
+    checkLoginIframe: false
   });
 
   console.log('registerUrl', registerUrl)
@@ -40,10 +45,11 @@ export default function App() {
     keycloak
       .register({
         scope: "openid",
-        redirectUri: "http://localhost:3020/code",
+        redirectUri: "http://localhost:3000/code",
         locale: "en",
         action: "register",
-        prompt: "login"
+        prompt: "login",
+        checkLoginIframe: false
       })
       .then((result) => {
         console.log("result", result);
